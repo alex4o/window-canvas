@@ -1,0 +1,17 @@
+{
+  "name": "canvas-xcb",
+  "version": "0.0.1",
+  "description": "Adding the posibility to use node-cavas to draw with xcb.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "alex4o",
+  "license": "GPL-2.0",
+  "dependencies": {
+    "canvas": "^1.6.5",
+    "mocha": "^3.3.0",
+    "nan": "^2.6.2",
+    "node-gyp": "^3.6.0"
+  }
+}
