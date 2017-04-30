@@ -13,6 +13,10 @@ class Window : public Nan::ObjectWrap {
   xcb_screen_t *          xcb_scrn;
   uint32_t                xcb_values[2];
   xcb_window_t            xcb_win;
+
+  uv_poll_t read_watcher;
+  uv_poll_t write_watcher;
+
 public:
   static Nan::Persistent<v8::Function> constructor;
   static void Init(v8::Local<v8::Object> exports);
@@ -37,4 +41,5 @@ public:
   static NAN_METHOD(GetCanvas);
   static NAN_METHOD(SetContext);
 
+  static void on_io_readable(uv_poll_t* handle, int status, int revents);
 };

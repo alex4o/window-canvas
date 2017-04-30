@@ -53,7 +53,7 @@ NAN_METHOD(Window::SetContext) {
 
 NAN_METHOD(Window::GetCanvas) {
   Window *window = Nan::ObjectWrap::Unwrap<Window>(info.This());
-  //window->open();
+
 }
 
 void Window::Init(v8::Local<v8::Object> exports) {
@@ -88,6 +88,8 @@ void Window::Init(v8::Local<v8::Object> exports) {
 }
 Window::Window() {
   this->canvas = NULL;
+  read_watcher.data = this;
+  write_watcher.data = this;
 }
 
 void Window::open() {
@@ -132,14 +134,18 @@ void Window::open() {
   printf("win cool\n");
   printf("surface: %ul \n", canvas);
 
-  if(canvas == NULL){
+  int fd = xcb_get_file_descriptor(xcb_conn);
 
-  }else{
-    printf("surface: %ul %ul\n", canvas, canvas->_surface);
-    printf("surface: %ul %ul\n", canvas, canvas->_surface);
+  uv_poll_init_socket(uv_default_loop(), &(this->read_watcher), fd);
+  uv_poll_start(&read_watcher, UV_READABLE, on_io_readable);
+}
 
+void Window::on_io_readable(uv_poll_t* handle, int status, int revents){
+  Window* self = (Window*) handle->data;
+  xcb_generic_event_t* event = xcb_poll_for_event (self->xcb_conn);
+  if(event != NULL){
+    printf("async type: %d %ul\n", event->response_type, event);
   }
-
 }
 
 NAN_METHOD(Window::Close) {
