@@ -4,6 +4,8 @@
 #include <CanvasRenderingContext2d.h>
 #include <cairo-xcb.h>
 
+using Nan::Callback;
+
 xcb_visualtype_t *get_root_visual_type(xcb_screen_t *s);
 
 class Window : public Nan::ObjectWrap {
@@ -31,8 +33,7 @@ public:
   static NAN_METHOD(Close);
   static NAN_METHOD(Flush);
 
-  static NAN_METHOD(PollEvent);
-  static NAN_METHOD(WaitEvent);
+  static NAN_METHOD(Event);
 
   static NAN_METHOD(StartGroup);
   static NAN_METHOD(EndGroup);
@@ -42,4 +43,5 @@ public:
   static NAN_METHOD(SetContext);
 
   static void on_io_readable(uv_poll_t* handle, int status, int revents);
+  Callback *event;
 };

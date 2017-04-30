@@ -40,18 +40,7 @@ function clock (ctx) {
   }
 
   // Minute marks
-  // ctx.lineWidth = 5
-  // ctx.strokeStyle = '#000000'
-  // for (i = 0; i < 60; i++) {
-  //   if (i % 5 !== 0) {
-  //     x = getX(Math.PI / 30 * i)
-  //     y = getY(Math.PI / 30 * i)
-  //     ctx.beginPath()
-  //     ctx.moveTo(x * 117, y * 117)
-  //     ctx.lineTo(x * 125, y * 125)
-  //     ctx.stroke()
-  //   }
-  // }
+
 
   var sec = now.getSeconds()
   var min = now.getMinutes()

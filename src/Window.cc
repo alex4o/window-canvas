@@ -70,8 +70,7 @@ void Window::Init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "flush", Flush);
 
 
-  Nan::SetPrototypeMethod(tpl, "PollEvent", PollEvent);
-  Nan::SetPrototypeMethod(tpl, "WaitEvent", WaitEvent);
+  Nan::SetPrototypeMethod(tpl, "Event", Event);
 
   Nan::SetPrototypeMethod(tpl, "SetCanvas", SetCanvas);
   Nan::SetPrototypeMethod(tpl, "Getcanvas", GetCanvas);
@@ -141,10 +140,15 @@ void Window::open() {
 }
 
 void Window::on_io_readable(uv_poll_t* handle, int status, int revents){
+  Nan::HandleScope scope;
   Window* self = (Window*) handle->data;
   xcb_generic_event_t* event = xcb_poll_for_event (self->xcb_conn);
   if(event != NULL){
-    printf("async type: %d %ul\n", event->response_type, event);
+    //printf("async type: %d %ul\n", event->response_type, event);
+    Local<Value> argv[] = {
+      Nan::New(event->response_type)
+    };
+    self->event->Call(1, argv);
   }
 }
 
@@ -164,36 +168,10 @@ NAN_METHOD(Window::New) {
   info.GetReturnValue().Set(info.This());
 }
 
-NAN_METHOD(Window::PollEvent) {
+NAN_METHOD(Window::Event) {
   Window *window = Nan::ObjectWrap::Unwrap<Window>(info.This());
-  xcb_generic_event_t* event = xcb_poll_for_event (window->xcb_conn);
-  if(event != NULL){
-    printf("type: %d %ul %d\n", event->response_type, event, XCB_RESIZE_REQUEST);
-    switch(event->response_type) {
-      case XCB_RESIZE_REQUEST:
-        auto resize = (xcb_resize_request_event_t*) event;
-        printf("resize: [%d %d]\n", resize->width, resize->height);
+  window->event = new Callback(info[0].As<Function>());
 
-        cairo_surface_flush(window->canvas->_surface);
-        cairo_xcb_surface_set_size(window->canvas->_surface, resize->width, resize->height);
-    }
-    info.GetReturnValue().Set(Nan::New(event->response_type));
-    free(event);
-  }
-}
-
-NAN_METHOD(Window::WaitEvent) {
-  Window *window = Nan::ObjectWrap::Unwrap<Window>(info.This());
-  xcb_generic_event_t* event = xcb_wait_for_event (window->xcb_conn);
-  printf("type: %d\n", event->response_type);
-  if(event->response_type == 0){
-    xcb_generic_error_t *error = (xcb_generic_error_t*)event;
-
-      printf("Received X11 error %d %d %u %d:%d\n", error->error_code, error->sequence, error->resource_id, error->minor_code, error->major_code);
-
-  }
-  info.GetReturnValue().Set(Nan::New(event->response_type));
-  free(event);
 }
 
 NAN_METHOD(Window::StartGroup) {
